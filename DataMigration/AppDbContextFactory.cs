@@ -13,7 +13,7 @@ namespace DataMigration
         public AppDbContext CreateDbContext(string[] args)
         {
             var options = new DbContextOptionsBuilder<AppDbContext>()
-                .UseSqlServer("Server=.\\SQLEXPRESS;Database=ShopService;Trusted_Connection=True;TrustServerCertificate=True;")
+                .UseSqlServer("Server=.\\SQLEXPRESS;Database=ERM;Trusted_Connection=True;TrustServerCertificate=True;")
                 .Options;
 
             return new AppDbContext(options);

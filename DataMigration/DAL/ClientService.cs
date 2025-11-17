@@ -30,6 +30,11 @@ namespace DataMigration.DAL
             return await _context.Clients.Where(c => c.LastName == lastName).ToListAsync();
         }
 
+        public async Task<List<Client>> GetClientByApproximateNameAsync(string firstName, string lastName)
+        {
+            return await _context.Clients.Where(c => EF.Functions.Like(c.FirstName, firstName) && EF.Functions.Like(c.LastName, lastName)).ToListAsync();
+        }
+
         public async Task AddClientAsync(Client client)
         {
             _context.Clients.Add(client);

@@ -246,7 +246,7 @@ namespace DataMigration.DAL
 
                 var clientFullName = "";
 
-                var nameRegex = new Regex(@"\b\p{Lu}\p{L}+\s\p{Lu}\p{L}+\b");
+                var nameRegex = new Regex(@"(?<!\S)\p{Lu}\p{L}+(?:\s\p{Lu}\p{L}+)+");
 
                 clientFullName = nameRegex.Matches(rawInformation).FirstOrDefault().Value;
                 Console.WriteLine(clientFullName);
@@ -287,11 +287,12 @@ namespace DataMigration.DAL
                     }
                     else // gjejme klientet me mbiemer ekzakt
                     {
-                        isFirstNameDifferent = true;
                         // gjejme klientet me emer ekzakt
                         var clientsBySurname = await clientService.GetClientByLastNameAsync(clientSurname);
                         if (clientsBySurname != null && clientsBySurname.Count > 0)
                         {
+                            isFirstNameDifferent = true;
+
                             var changeDifference = 1000;
 
                             foreach (var c in clientsBySurname)
@@ -303,15 +304,29 @@ namespace DataMigration.DAL
                                     clientId = c.Id;
                                 }
 
-                                // TODO: log in excel qe klienti eshte gjetur me perafersi
                             }
 
-                            // TODO: log in excel qe klienti eshte gjetur me perafersi
                         }
-                        else // TODO: Kerkojme me emeer dhe mbiemer me LIKE
+                        else
                         {
                             isFirstNameDifferent = true;
                             islastNameDifferent = true;
+
+                            var clientsByApproximateName = await clientService.GetClientByApproximateNameAsync(clientName, clientSurname);
+                            if (clientsByApproximateName != null && clientsByApproximateName.Count > 0)
+                            {
+                                var changeDifference = 1000;
+
+                                foreach (var c in clientsByApproximateName)
+                                {
+                                    int diff = clientName.Zip(c.FirstName, (a, b) => a != b).Count(x => x);
+                                    if (diff < changeDifference)
+                                    {
+                                        changeDifference = diff;
+                                        clientId = c.Id;
+                                    }
+                                }
+                            }
 
                         }
                     }
